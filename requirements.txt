@@ -1,0 +1,4 @@
+regex==2017.4.5
+tqdm==4.31.1
+ftfy==5.6
+tensorflow-gpu==2.0.0

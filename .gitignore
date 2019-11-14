@@ -1,0 +1,4 @@
+venv/*
+models/*
+*.pyc
+*.h5
