@@ -18,10 +18,13 @@ pip install -r requirements.txt
 ```
 python finetune.py \
 --model=355M \
---model_ckpt=/models/335M/model.ckpt \
+--model_ckpt=models/355M/model.ckpt \
 --json_hparams=models/355M/hparams.json \
 --json_encoder=models/355M/encoder.json \
 --vocab_bpe=models/355M/vocab.bpe \
 --dataset_path=dataset/killbill.txt \
---data_loader=text
+--data_loader=text \
+--output_name=killbill_355M.h5 \
+--num_epoch=4 \
+--steps_per_epoch=100
 ```

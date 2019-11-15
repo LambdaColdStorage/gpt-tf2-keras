@@ -1,10 +1,16 @@
+import os
 import argparse
-import json
 import importlib
 
+
 import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras.callbacks import LearningRateScheduler
+
 
 from src import encoder
+from src import net
+
 
 parser = argparse.ArgumentParser(description='Input argument parser.')
 
@@ -48,14 +54,14 @@ parser.add_argument('--base_lr', type=float, help='base learning rate',
 parser.add_argument('--decay_lr', type=float, help='learning rate decay rate',
                     default=0.1)
 
-parser.add_argument('--decay_epoch', type=str, help='epoches to decay learning rate',
+parser.add_argument('--decay_epochs', type=str, help='epoches to decay learning rate',
                     default='2,3')
 
 parser.add_argument('--steps_per_epoch', type=int, help='number of training step for each epoch',
                     default=100)
 
 parser.add_argument('--batch_size', type=int, help='batch size',
-                    default=2)
+                    default=1)
 
 parser.add_argument('--length', type=int, help='length of input sequence (number of tokens)',
                     default=1024)
@@ -63,15 +69,15 @@ parser.add_argument('--length', type=int, help='length of input sequence (number
 parser.add_argument('--data_loader', type=str, help='type of dataset',
                     choices=['text', 'cnndm', 'coqa'])
 
+parser.add_argument('--output_name', type=str, help='name of output model')
+
 args = parser.parse_args()
 
 
 def main():
 
-    if not args.json_hparams:
-        print('json_hparams must be provided.')
-        print('quit program.')
-        exit()
+    if not args.eager:
+        tf.compat.v1.disable_eager_execution()
 
     if not args.json_encoder:
         print('json_encoder must be provided.')
@@ -83,17 +89,8 @@ def main():
         print('quit program.')
         exit()
 
-    with open(args.json_hparams) as f:
-        hparams = json.load(f)
-
-    if not args.eager:
-        tf.compat.v1.disable_eager_execution()
-
-    n_vocab = hparams['n_vocab']
-    n_ctx = hparams['n_ctx']
-    n_embd = hparams['n_embd']
-    n_head = hparams['n_head'] 
-    n_layer = hparams['n_layer']
+    if not os.path.exists('output'):
+        os.makedirs('output')
 
     enc = encoder.get_encoder(args.json_encoder, args.vocab_bpe)
 
@@ -104,6 +101,23 @@ def main():
     # for value in ds.take(2):
     #   print(value)
 
+    model = net.create_model(args)
+
+    # restore weight
+    model = net.load_weights(model, args)
+
+    model.compile(
+        optimizer=keras.optimizers.Adam(),
+        loss=net.loss
+    )
+
+    # fine tune
+    model.fit(ds,
+              epochs=args.num_epoch,
+              steps_per_epoch=args.steps_per_epoch,
+              callbacks=[LearningRateScheduler(net.create_schedule(args))])
+
+    model.save(os.path.join('output', args.output_name))
 
 if __name__ == '__main__':
     main()
