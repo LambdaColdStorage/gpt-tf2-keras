@@ -146,7 +146,7 @@ def create_schedule(args):
     def schedule(epoch):
         learning_rate = args.base_lr * args.batch_size
         for e in decay_epochs:
-            # 
+
             if epoch >= e:
                 learning_rate = args.decay_lr * learning_rate
             else:

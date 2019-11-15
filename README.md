@@ -26,7 +26,7 @@ python finetune.py \
 --data_loader=text \
 --output_name=killbill_355M.h5 \
 --num_epoch=4 \
---steps_per_epoch=100
+--steps_per_epoch=500
 
 
 
