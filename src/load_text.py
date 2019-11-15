@@ -94,7 +94,7 @@ class Sampler(object):
                 yield output, output[1:]
 
 
-def create_dataset(enc, length, dataset_path, batch_size):
+def create_dataset(enc, length, dataset_path, batch_size, steps_per_epoch):
     
     combine = 50000
 
@@ -108,6 +108,6 @@ def create_dataset(enc, length, dataset_path, batch_size):
         (tf.TensorShape([length]), tf.TensorShape([length - 1]))
         )
 
-    ds = ds.batch(batch_size, drop_remainder=True)
+    ds = ds.shuffle(buffer_size=steps_per_epoch).batch(batch_size, drop_remainder=True)
 
     return ds

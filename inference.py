@@ -14,7 +14,7 @@ from src import utils
 
 parser = argparse.ArgumentParser(description='Input argument parser.')
 
-parser.add_argument('--model_h5', type=str, help='path of model checkpoint')
+parser.add_argument('--model_path', type=str, help='path of model')
 
 parser.add_argument('--json_hparams', type=str, help='path to the json of hyper parameters')
 
@@ -61,17 +61,30 @@ def main():
     enc = encoder.get_encoder(args.json_encoder, args.vocab_bpe)
 
     # load model
-    model = keras.models.load_model(
-        args.model_h5,
-        custom_objects={'EmbeddingSim': EmbeddingSim,
-                        'EmbeddingRet': EmbeddingRet,
-                        'PositionEmbedding': PositionEmbedding,
-                        'LayerNormalization': LayerNormalization,
-                        'ScaledDotProductAttention': ScaledDotProductAttention,
-                        'MultiHeadAttention': MultiHeadAttention,
-                        'FeedForward': FeedForward,
-                        'gelu': gelu,
-                        'loss': net.loss})
+    if args.model_path.split('.')[-1] == 'h5':
+        model = keras.models.load_model(
+            args.model_path,
+            custom_objects={'EmbeddingSim': EmbeddingSim,
+                            'EmbeddingRet': EmbeddingRet,
+                            'PositionEmbedding': PositionEmbedding,
+                            'LayerNormalization': LayerNormalization,
+                            'ScaledDotProductAttention': ScaledDotProductAttention,
+                            'MultiHeadAttention': MultiHeadAttention,
+                            'FeedForward': FeedForward,
+                            'gelu': gelu,
+                            'loss': net.loss})
+    elif args.model_path.split('.')[-1] == 'ckpt':
+        args.model_ckpt = args.model_path
+        model = net.create_model(args)
+        model = net.load_weights(model, args)
+        model.compile(
+            optimizer=keras.optimizers.Adam(),
+            loss=net.loss
+        )
+    else:
+        print('Unrecognized model format: ' + args.model_path.split('.')[-1])
+        exit()
+
     model.trainable = False    
 
     # prepare input data
