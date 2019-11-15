@@ -14,10 +14,6 @@ from src import net
 
 parser = argparse.ArgumentParser(description='Input argument parser.')
 
-parser.add_argument('--task', type=str, help='name of task',
-                    choices=['texgen', 'qa', 'summary'],
-                    default='texgen')
-
 parser.add_argument('--model', type=str, help='name of model',
                     choices=['124M', '355M', '774M', '1558M'],
                     default='124M')
@@ -31,17 +27,6 @@ parser.add_argument('--json_encoder', type=str, help='path to the json of encode
 parser.add_argument('--vocab_bpe', type=str, help='path to the vocabulary bpe')
 
 parser.add_argument('--eager', help='flag to turn on/off eager mode', action='store_true')
-
-parser.add_argument('--nucleus', help='flag to turn on/off nucleus sampling', action='store_true')
-
-parser.add_argument('--top_p', type=float, help='cut off probablity for nucleus sampling',
-                    default=1.0)
-
-parser.add_argument('--top_k', type=int, help='cut off ranking for top K sampling',
-                    default=2)
-
-parser.add_argument('--temperature', type=float, help='temperature in text generation. Higher temperature creates more randomness in the results.',
-                    default=1.0)
 
 parser.add_argument('--dataset_path', type=str, help='path to dataset')
 
