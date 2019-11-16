@@ -181,3 +181,78 @@ And her proud voice, Yezzan’s, woken only when creak made of bells.
 ```
 
 Amazingly, the output has many elements from `A Song of Ice and Fire`. It talks about the `wall`, `black wolf`, `the dead`, `the nerrow sea`. It also mentioned the popular character `Tyrion`, and a less significant character `Yezzan` (an extremely wealthy slave trader, and one of the Wise Masters from Yunkai). It also invented a new character/place named `Horos`. 
+
+
+
+### Text Summarization
+
+```
+python finetune.py \
+--model=355M \
+--model_ckpt=models/355M/model.ckpt \
+--json_hparams=models/355M/hparams.json \
+--json_encoder=models/355M/encoder.json \
+--vocab_bpe=models/355M/vocab.bpe \
+--output_name=cnndm_355M.h5 \
+--dataset_path=/home/ubuntu/data/summarization \
+--data_loader=cnndm \
+--num_epoch=4 \
+--steps_per_epoch=100
+
+
+python inference.py \
+--model_path=output/cnndm_355M.h5 \
+--json_hparams=models/355M/hparams.json \
+--json_encoder=models/355M/encoder.json \
+--vocab_bpe=models/355M/vocab.bpe \
+--nucleus \
+--top_p=1.0 \
+--temperature=1.0 \
+--output_length=200 \
+--starter="In the Second Age of Middle-earth, the lords of Elves, Dwarves, and Men are given Rings of Power. Unbeknownst to them, the Dark Lord Sauron forges the One Ring in Mount Doom, infusing into it a great part of his power to dominate, through it and at a distance, the other Rings, so he might conquer Middle-earth. A final alliance of men and elves battles Sauron\'s forces in Mordor, where Prince Isildur of Gondor severs Sauron\'s finger, and the Ring with it, thereby destroying his physical form. With Sauron\'s first defeat, the Third Age of Middle-earth begins. Unfortunately, the Ring\'s influence corrupts Isildur, and, rather than destroy the Ring, Isildur takes it for himself. Isildur is later killed by Orcs, and the Ring is lost for 2,500 years, until it is found by Gollum, who owns it for five centuries. The Ring is then found by a hobbit named Bilbo Baggins, who turns invisible when he puts it on, but is unaware of its history. \n@highlight\n"
+
+
+python inference.py \
+--model_path=models/355M/model.ckpt \
+--json_hparams=models/355M/hparams.json \
+--json_encoder=models/355M/encoder.json \
+--vocab_bpe=models/355M/vocab.bpe \
+--nucleus \
+--top_p=1.0 \
+--temperature=1.0 \
+--output_length=200 \
+--starter="In the Second Age of Middle-earth, the lords of Elves, Dwarves, and Men are given Rings of Power. Unbeknownst to them, the Dark Lord Sauron forges the One Ring in Mount Doom, infusing into it a great part of his power to dominate, through it and at a distance, the other Rings, so he might conquer Middle-earth. A final alliance of men and elves battles Sauron\'s forces in Mordor, where Prince Isildur of Gondor severs Sauron\'s finger, and the Ring with it, thereby destroying his physical form. With Sauron\'s first defeat, the Third Age of Middle-earth begins. Unfortunately, the Ring\'s influence corrupts Isildur, and, rather than destroy the Ring, Isildur takes it for himself. Isildur is later killed by Orcs, and the Ring is lost for 2,500 years, until it is found by Gollum, who owns it for five centuries. The Ring is then found by a hobbit named Bilbo Baggins, who turns invisible when he puts it on, but is unaware of its history. \n@highlight\n"
+
+```
+
+
+### Reading Comprehension
+
+
+```
+python finetune.py \
+--model=355M \
+--model_ckpt=models/355M/model.ckpt \
+--json_hparams=models/355M/hparams.json \
+--json_encoder=models/355M/encoder.json \
+--vocab_bpe=models/355M/vocab.bpe \
+--output_name=coqa_355M.h5 \
+--dataset_path=/home/ubuntu/data/coqa \
+--data_loader=coqa \
+--num_epoch=4 \
+--steps_per_epoch=100
+
+
+python inference.py \
+--model_path=output/coqa_355M.h5 \
+--json_hparams=models/355M/hparams.json \
+--json_encoder=models/355M/encoder.json \
+--vocab_bpe=models/355M/vocab.bpe \
+--nucleus \
+--top_p=1.0 \
+--temperature=1.0 \
+--output_length=200 \
+--starter="The 2008 Summer Olympics torch relay was run from March 24 until August 8, 2008, prior to the 2008 Summer Olympics, with the theme of \“one world, one dream\”. Plans for the relay were announced on April 26, 2007, in Beijing, China. The relay, also called by the organizers as the “Journey of Harmony”, lasted 129 days and carried the torch 137,000 km (85,000 mi) – the longest distance of any Olympic torch relay since the tradition was started ahead of the 1936 Summer Olympics. After being lit at the birthplace of the Olympic Games in Olympia, Greece on March 24, the torch traveled to the Panathinaiko Stadium in Athens, and then to Beijing, arriving on March 31. From Beijing, the torch was following a route passing through six continents. The torch has visited cities along the Silk Road, symbolizing ancient links between China and the rest of the world. The relay also included an ascent with the flame to the top of Mount Everest on the border of Nepal and Tibet, China from the Chinese side, which was closed specially for the event. \n Q: What was the theme? \n A: “one world, one dream”. \n Q: What was the length of the race? \n A: 137,000 km \n Q: Was it larger than previous ones? \n A: No \n Q: Where did the race begin? \n A: Olympia, Greece \n Q: Is there anything notable about that place? \n A: birthplace of Olympic Games \n Q: Where did they go after? \n A: Athens \n Q: How many days was the race? \n A: seven \n Q: Did they visit any notable landmarks? \n A: Panathinaiko Stadium \n Q: And did they climb any mountains? \n A:"
+
+```
+

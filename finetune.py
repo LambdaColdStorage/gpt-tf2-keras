@@ -80,11 +80,11 @@ def main():
     enc = encoder.get_encoder(args.json_encoder, args.vocab_bpe)
 
     ds = importlib.import_module(
-      "src.load_" + args.data_loader).create_dataset(
-      enc, args.length, args.dataset_path, args.batch_size, args.steps_per_epoch)
+        "src.load_" + args.data_loader).create_dataset(
+        enc, args.length, args.dataset_path, args.batch_size, args.steps_per_epoch)
 
     # for value in ds.take(2):
-    #   print(value)
+    #     print(value)
 
     model = net.create_model(args)
 
