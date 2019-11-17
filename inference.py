@@ -61,6 +61,9 @@ def main():
     args.starter = args.starter.replace("\\n", "\n")
     args.starter = args.starter.replace("\\'", "'")
 
+    # print(args.starter)
+    # exit()
+    
     enc = encoder.get_encoder(args.json_encoder, args.vocab_bpe)
 
     # load model

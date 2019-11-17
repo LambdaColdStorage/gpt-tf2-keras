@@ -48,7 +48,7 @@ class Sampler(object):
                 yield enc_story, enc_story[1:]
 
 
-def create_dataset(enc, length, dataset_path, batch_size, steps_per_epoch):
+def create_dataset(enc, length, dataset_path, batch_size, steps_per_epoch, num_epoch):
     
     data_sampler = Sampler('train', dataset_path, enc, length)
 
@@ -58,6 +58,6 @@ def create_dataset(enc, length, dataset_path, batch_size, steps_per_epoch):
         (tf.TensorShape([None]), tf.TensorShape([None]))
         )
 
-    ds = ds.shuffle(buffer_size=steps_per_epoch).batch(batch_size, drop_remainder=True)
+    ds = ds.repeat(num_epoch).shuffle(buffer_size=steps_per_epoch).batch(batch_size, drop_remainder=True)
 
     return ds

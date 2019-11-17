@@ -2,3 +2,4 @@ venv/*
 models/*
 *.pyc
 *.h5
+run_bash.sh
