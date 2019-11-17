@@ -58,6 +58,9 @@ def main():
         print('quit program.')
         exit()
 
+    args.starter = args.starter.replace("\\n", "\n")
+    args.starter = args.starter.replace("\\'", "'")
+
     enc = encoder.get_encoder(args.json_encoder, args.vocab_bpe)
 
     # load model

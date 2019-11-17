@@ -196,8 +196,9 @@ python finetune.py \
 --output_name=cnndm_355M.h5 \
 --dataset_path=/home/ubuntu/data/summarization \
 --data_loader=cnndm \
---num_epoch=4 \
---steps_per_epoch=100
+--base_lr=0.0001 \
+--num_epoch=5 \
+--steps_per_epoch=2000
 
 
 python inference.py \
@@ -210,6 +211,19 @@ python inference.py \
 --temperature=1.0 \
 --output_length=200 \
 --starter="In the Second Age of Middle-earth, the lords of Elves, Dwarves, and Men are given Rings of Power. Unbeknownst to them, the Dark Lord Sauron forges the One Ring in Mount Doom, infusing into it a great part of his power to dominate, through it and at a distance, the other Rings, so he might conquer Middle-earth. A final alliance of men and elves battles Sauron\'s forces in Mordor, where Prince Isildur of Gondor severs Sauron\'s finger, and the Ring with it, thereby destroying his physical form. With Sauron\'s first defeat, the Third Age of Middle-earth begins. Unfortunately, the Ring\'s influence corrupts Isildur, and, rather than destroy the Ring, Isildur takes it for himself. Isildur is later killed by Orcs, and the Ring is lost for 2,500 years, until it is found by Gollum, who owns it for five centuries. The Ring is then found by a hobbit named Bilbo Baggins, who turns invisible when he puts it on, but is unaware of its history. \n@highlight\n"
+
+
+python inference.py \
+--model_path=output/cnndm_355M.h5 \
+--json_hparams=models/355M/hparams.json \
+--json_encoder=models/355M/encoder.json \
+--vocab_bpe=models/355M/vocab.bpe \
+--nucleus \
+--top_p=1.0 \
+--temperature=1.0 \
+--output_length=200 \
+--starter="TensorFlow [1] is an interface for expressing machine learning algorithms, and an implementation for executing such algorithms. A computation expressed using TensorFlow can be executed with little or no change on a wide variety of heterogeneous systems, ranging from mobile devices such as phones and tablets up to large-scale distributed systems of hundreds of machines and thousands of computational devices such as GPU cards. The system is flexible and can be used to express a wide variety of algorithms, including training and inference algorithms for deep neural network models, and it has been
+used for conducting research and for deploying machine learning systems into production across more than a dozen areas of computer science and other fields, including speech recognition, computer vision, robotics, information retrieval, natural language processing, geographic information extraction, and computational drug discovery. This paper describes the TensorFlow interface and an implementation of that interface that we have built at Google. The TensorFlow API and a reference implementation were released as an open-source package under the Apache 2.0 license in November, 2015 and are available at www.tensorflow.org. \n@highlight\n"
 
 
 python inference.py \
@@ -239,12 +253,25 @@ python finetune.py \
 --output_name=coqa_355M.h5 \
 --dataset_path=/home/ubuntu/data/coqa \
 --data_loader=coqa \
---num_epoch=4 \
---steps_per_epoch=100
+--base_lr=0.0001 \
+--num_epoch=5 \
+--steps_per_epoch=200
 
 
 python inference.py \
 --model_path=output/coqa_355M.h5 \
+--json_hparams=models/355M/hparams.json \
+--json_encoder=models/355M/encoder.json \
+--vocab_bpe=models/355M/vocab.bpe \
+--nucleus \
+--top_p=1.0 \
+--temperature=1.0 \
+--output_length=200 \
+--starter="The 2008 Summer Olympics torch relay was run from March 24 until August 8, 2008, prior to the 2008 Summer Olympics, with the theme of \“one world, one dream\”. Plans for the relay were announced on April 26, 2007, in Beijing, China. The relay, also called by the organizers as the “Journey of Harmony”, lasted 129 days and carried the torch 137,000 km (85,000 mi) – the longest distance of any Olympic torch relay since the tradition was started ahead of the 1936 Summer Olympics. After being lit at the birthplace of the Olympic Games in Olympia, Greece on March 24, the torch traveled to the Panathinaiko Stadium in Athens, and then to Beijing, arriving on March 31. From Beijing, the torch was following a route passing through six continents. The torch has visited cities along the Silk Road, symbolizing ancient links between China and the rest of the world. The relay also included an ascent with the flame to the top of Mount Everest on the border of Nepal and Tibet, China from the Chinese side, which was closed specially for the event. \n Q: What was the theme? \n A: “one world, one dream”. \n Q: What was the length of the race? \n A: 137,000 km \n Q: Was it larger than previous ones? \n A: No \n Q: Where did the race begin? \n A: Olympia, Greece \n Q: Is there anything notable about that place? \n A: birthplace of Olympic Games \n Q: Where did they go after? \n A: Athens \n Q: How many days was the race? \n A: seven \n Q: Did they visit any notable landmarks? \n A: Panathinaiko Stadium \n Q: And did they climb any mountains? \n A:"
+
+
+python inference.py \
+--model_path=models/355M/model.ckpt \
 --json_hparams=models/355M/hparams.json \
 --json_encoder=models/355M/encoder.json \
 --vocab_bpe=models/355M/vocab.bpe \

@@ -33,13 +33,14 @@ class Sampler(object):
             enc_story = self.enc.encode(story)
 
             for q, a in zip(questions, answers):
-                enc_qq = self.enc.encode(
-                    ftfy.fix_text("\nQ: " + q['input_text']).strip())
-                enc_aa = self.enc.encode(
-                    ftfy.fix_text("\nA: " + a['input_text']).strip())
 
-                if len(enc_story) + len(enc_qq) + len(enc_aa) <= self.n_ctx:
-                    enc_story = enc_story + enc_qq + enc_aa
+                enc_q = self.enc.encode(ftfy.fix_text(
+                    "\n Q: " + q['input_text']))
+                enc_a = self.enc.encode(ftfy.fix_text(
+                    "\n A: " + a['input_text']))
+
+                if len(enc_story) + len(enc_q) + len(enc_a) <= self.n_ctx:
+                    enc_story = enc_story + enc_q + enc_a
                 else:
                     break
 

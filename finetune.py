@@ -40,7 +40,7 @@ parser.add_argument('--decay_lr', type=float, help='learning rate decay rate',
                     default=0.1)
 
 parser.add_argument('--decay_epochs', type=str, help='epoches to decay learning rate',
-                    default='2,3')
+                    default='1000,10000')
 
 parser.add_argument('--steps_per_epoch', type=int, help='number of training step for each epoch',
                     default=100)
@@ -83,8 +83,13 @@ def main():
         "src.load_" + args.data_loader).create_dataset(
         enc, args.length, args.dataset_path, args.batch_size, args.steps_per_epoch)
 
-    # for value in ds.take(2):
-    #     print(value)
+    # for value in ds.take(10):
+    #     x = enc.decode(value[0][0].numpy())
+    #     print(x)
+    #     print(len(value[0][0]))
+    #     input("Press Enter to continue...")
+
+    # exit()
 
     model = net.create_model(args)
 
