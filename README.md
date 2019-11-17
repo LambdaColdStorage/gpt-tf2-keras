@@ -4,6 +4,8 @@ TensorFlow 2 implementation of GTP2 for fine-tuning on a single GPU.
 1. [Setup](#setup)
 	1. [Software](#software)
 	2. [Hardware](#hardware)
+	3. [Pre-trained Models](#pre-trained)
+	4. [Data](#data)
 2. [Acknowledgement](#acknowledgement)
 3. [Examples](#examples)
 	1. [Text Generation](#text-generation)
@@ -35,6 +37,51 @@ GPT2 is very GPU memory intensive. Here is the minimal requirements for models o
 * 774M: 48GB (RTX Quadro 8000)
 * 1558M: seems not possible on a single GPU.
 
+### Pre-trained Models <a name="pre-trained"></a>
+
+```
+python download_model.py model_size (choose from 124M, 355M, 774M and 1558M)
+```
+
+### Data <a name="hardware"></a>
+
+__Text Generation__
+
+The '.txt' are available in the "dataset" folder.
+
+__Text Summarization__
+
+```
+# Download training json
+https://stanfordnlp.github.io/coqa/
+
+# copy to ~/data/coqa
+```
+
+__Conversational Question and Anwser__
+
+```
+sudo apt install default-jre            
+sudo apt install openjdk-11-jre-headless
+sudo apt install openjdk-8-jre-headless
+
+# Download stories and unzip to /home/ubuntu/data/cnn_stories and /home/ubuntu/data/dailymail_stories
+https://cs.nyu.edu/~kcho/DMQA/
+
+# Download Stanford CoreNLP and unzip to home/ubuntu/data/stanford-corenlp-full-2018-10-05/
+https://stanfordnlp.github.io/CoreNLP/
+
+
+git clone https://github.com/abisee/cnn-dailymail
+
+cd cnn-dailymail
+
+export CLASSPATH=/home/ubuntu/data/stanford-corenlp-full-2018-10-05/stanford-corenlp-3.9.2.jar
+
+python make_datafiles.py /home/ubuntu/data/cnn_stories/cnn/stories /home/ubuntu/data/dailymail_stories/dailymail/stories
+
+# copy folders url_lists, cnn_stories/cnn, dailymail_stories/dailymail to /home/ubuntu/data/summarization
+```
 
 ## Acknowledgement <a name="acknowledgement"></a>
 
