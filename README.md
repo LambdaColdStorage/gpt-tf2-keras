@@ -52,15 +52,6 @@ The '.txt' are available in the "dataset" folder.
 __Text Summarization__
 
 ```
-# Download training json
-https://stanfordnlp.github.io/coqa/
-
-# copy to ~/data/coqa
-```
-
-__Conversational Question and Anwser__
-
-```
 sudo apt install default-jre            
 sudo apt install openjdk-11-jre-headless
 sudo apt install openjdk-8-jre-headless
@@ -81,6 +72,16 @@ export CLASSPATH=/home/ubuntu/data/stanford-corenlp-full-2018-10-05/stanford-cor
 python make_datafiles.py /home/ubuntu/data/cnn_stories/cnn/stories /home/ubuntu/data/dailymail_stories/dailymail/stories
 
 # copy folders url_lists, cnn_stories/cnn, dailymail_stories/dailymail to /home/ubuntu/data/summarization
+```
+
+__Conversational Question and Anwser__
+
+
+```
+# Download training json
+https://stanfordnlp.github.io/coqa/
+
+# copy to ~/data/coqa
 ```
 
 ## Acknowledgement <a name="acknowledgement"></a>
@@ -338,7 +339,7 @@ TL;DR:
 Ralph Lauren began as tie salesman from the Bronx
 ```
 
-To fine-tune the `355M` model, we point the `dataset_path` to the [preprocessed cnn-dailymail dataset] and specify `cnndm` as the loader. Here we fine-tune the model for five epoch and 2000 steps per epoch. We also decreased the initial learning rate to `0.0001` to avoid gradient overflow.
+To fine-tune the `355M` model, we point the `dataset_path` to the [preprocessed cnn-dailymail dataset](#data) and specify `cnndm` as the loader. Here we fine-tune the model for five epoch and 2000 steps per epoch. We also decreased the initial learning rate to `0.0001` to avoid gradient overflow.
 
 ```
 python finetune.py \
@@ -502,7 +503,7 @@ python finetune.py \
 --steps_per_epoch=2000
 ```
 
-And here is the fine-tune command and the generated conversation based on the above 2008 Summer Olympics torch relay article:
+And here is the command that uses the fine-tuned model to generate conversation based on the above 2008 Summer Olympics torch relay article:
 
 ```
 python inference.py \
