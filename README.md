@@ -9,6 +9,12 @@ TensorFlow 2 implementation of GTP2 for fine-tuning on a single GPU.
 	1. [Text Generation](#text-generation)
 	2. [Text Summarization](#text-summarization)
 	3. [Conversational Question and Answer](#conversational-qa)
+4. [Large Models](#large-models)
+	1. [Text Generation 774M](#text-generation-774M)
+	2. [Text Summarization 774M](#text-summarization-774M)
+	3. [Conversational Question and Answer 774M](#conversational-qa-774M)	
+
+
 ## Setup <a name="setup"></a>
 
 ### Software <a name="software"></a>
@@ -92,7 +98,7 @@ In the end, when Qin Yu left Qin Yu's side, Qin Yu had become ill and would even
 
 To fine-tune GPT2 for text generation, we specify the model (size, pre-trained ckpt, json files for model hyperparameters and the encoder, the byte-pair-encoding of the vocabulary) and the training data (path to the text file and the type of loader).
 
-The following command fine-tunes the 355M model on `Kill Bill` for four epochs, where each epoch has 500 pieces (1024 tokens each) of text randomly sampled from the screenplay. 
+The following command fine-tunes the 355M model on `Kill Bill` for five epochs, where each epoch has 2000 pieces (1024 tokens each) of text randomly sampled from the screenplay. 
 
 ```
 python finetune.py \
@@ -101,18 +107,19 @@ python finetune.py \
 --json_hparams=models/355M/hparams.json \
 --json_encoder=models/355M/encoder.json \
 --vocab_bpe=models/355M/vocab.bpe \
---output_name=killbill_355M.h5 \
+--output_name=killbill_355M_5x2000.h5 \
 --dataset_path=dataset/killbill.txt \
 --data_loader=text \
---num_epoch=4 \
---steps_per_epoch=500
+--num_epoch=5 \
+--decay_epochs="4,5" \
+--steps_per_epoch=2000
 ```
 
 To test the fine-tuned model, we generate 200 tokens using `nucleus sampling` with `top_p=1.0` and `temperature=1.0`:
 
 ```
 python inference.py \
---model_path=output/killbill_355M.h5 \
+--model_path=output/killbill_355M_5x2000.h5 \
 --json_hparams=models/355M/hparams.json \
 --json_encoder=models/355M/encoder.json \
 --vocab_bpe=models/355M/vocab.bpe \
@@ -163,14 +170,15 @@ python finetune.py \
 --json_hparams=models/355M/hparams.json \
 --json_encoder=models/355M/encoder.json \
 --vocab_bpe=models/355M/vocab.bpe \
---output_name=CompleteRRMartin_355M.h5 \
+--output_name=CompleteRRMartin_355M_5x2000.h5 \
 --dataset_path=dataset/CompleteRRMartin.txt \
 --data_loader=text \
---num_epoch=4 \
---steps_per_epoch=500
+--num_epoch=5 \
+--decay_epochs="4,5" \
+--steps_per_epoch=2000
 
 python inference.py \
---model_path=output/CompleteRRMartin_355M.h5 \
+--model_path=output/CompleteRRMartin_355M_5x2000.h5 \
 --json_hparams=models/355M/hparams.json \
 --json_encoder=models/355M/encoder.json \
 --vocab_bpe=models/355M/vocab.bpe \
@@ -428,7 +436,7 @@ In the end there was no cake. But that wasn't so bad, because Joe discovered it 
 ```
 
 
-The following command fine-tunes the 355M model for 5 epochs and 2000 steps per epoch on the `CoQA` dataset:
+The following command fine-tunes the 355M model for five epochs and 2000 steps per epoch on the `CoQA` dataset:
 
 
 ```
@@ -483,3 +491,132 @@ python inference.py \
 ```
 
 The fine-tuned model produced text in a better format, contextually closely related to the starter and logically valid questions and answers. However, the conversation is still not flawless. For example, there should be no Olympics in the year 2009, and a "solar event" named "Rawl083" should only exist in science fiction.
+
+
+
+## Large Models <a name="large-models"></a>
+
+### Text Generation 774M <a name="text-generation-774M"></a>
+
+```
+python finetune.py \
+--model=774M \
+--model_ckpt=models/774M/model.ckpt \
+--json_hparams=models/774M/hparams.json \
+--json_encoder=models/774M/encoder.json \
+--vocab_bpe=models/774M/vocab.bpe \
+--output_name=killbill_774M_5x2000.h5 \
+--dataset_path=dataset/killbill.txt \
+--data_loader=text \
+--num_epoch=5 \
+--decay_epochs="4,5" \
+--steps_per_epoch=2000
+
+python inference.py \
+--model_path=output/killbill_774M_5x2000.h5 \
+--json_hparams=models/774M/hparams.json \
+--json_encoder=models/774M/encoder.json \
+--vocab_bpe=models/774M/vocab.bpe \
+--nucleus \
+--top_p=1.0 \
+--temperature=1.0 \
+--output_length=200 \
+--starter='She picked up the sword'
+```
+
+```
+python finetune.py \
+--model=774M \
+--model_ckpt=models/774M/model.ckpt \
+--json_hparams=models/774M/hparams.json \
+--json_encoder=models/774M/encoder.json \
+--vocab_bpe=models/774M/vocab.bpe \
+--output_name=CompleteRRMartin_774M_5x2000.h5 \
+--dataset_path=dataset/CompleteRRMartin.txt \
+--data_loader=text \
+--num_epoch=5 \
+--decay_epochs="4,5" \
+--steps_per_epoch=2000
+
+python inference.py \
+--model_path=output/CompleteRRMartin_774M_5x2000.h5 \
+--json_hparams=models/774M/hparams.json \
+--json_encoder=models/774M/encoder.json \
+--vocab_bpe=models/774M/vocab.bpe \
+--nucleus \
+--top_p=1.0 \
+--temperature=1.0 \
+--output_length=200 \
+--starter='She picked up the sword'
+```
+
+### Text Summarization 774M <a name="text-summarization-774M"></a>
+
+```
+python finetune.py \
+--model=774M \
+--model_ckpt=models/774M/model.ckpt \
+--json_hparams=models/774M/hparams.json \
+--json_encoder=models/774M/encoder.json \
+--vocab_bpe=models/774M/vocab.bpe \
+--output_name=cnndm_774M_5x2000.h5 \
+--dataset_path=/home/ubuntu/data/summarization \
+--data_loader=cnndm \
+--base_lr=0.0001 \
+--num_epoch=5 \
+--decay_epochs="4,5" \
+--steps_per_epoch=2000
+
+
+python inference.py \
+--model_path=cnndm_774M_5x2000.h5 \
+--json_hparams=models/774M/hparams.json \
+--json_encoder=models/774M/encoder.json \
+--vocab_bpe=models/774M/vocab.bpe \
+--nucleus \
+--top_p=1.0 \
+--temperature=1.0 \
+--output_length=200 \
+--starter="In the Second Age of Middle-earth, the lords of Elves, Dwarves, and Men are given Rings of Power. Unbeknownst to them, the Dark Lord Sauron forges the One Ring in Mount Doom, infusing into it a great part of his power to dominate, through it and at a distance, the other Rings, so he might conquer Middle-earth. A final alliance of men and elves battles Sauron\'s forces in Mordor, where Prince Isildur of Gondor severs Sauron\'s finger, and the Ring with it, thereby destroying his physical form. With Sauron\'s first defeat, the Third Age of Middle-earth begins. Unfortunately, the Ring\'s influence corrupts Isildur, and, rather than destroy the Ring, Isildur takes it for himself. Isildur is later killed by Orcs, and the Ring is lost for 2,500 years, until it is found by Gollum, who owns it for five centuries. The Ring is then found by a hobbit named Bilbo Baggins, who turns invisible when he puts it on, but is unaware of its history. \nTL;DR:\n"
+
+python inference.py \
+--model_path=cnndm_774M_5x2000.h5 \
+--json_hparams=models/774M/hparams.json \
+--json_encoder=models/774M/encoder.json \
+--vocab_bpe=models/774M/vocab.bpe \
+--nucleus \
+--top_p=1.0 \
+--temperature=1.0 \
+--output_length=200 \
+--starter="TensorFlow [1] is an interface for expressing machine learning algorithms, and an implementation for executing such algorithms. A computation expressed using TensorFlow can be executed with little or no change on a wide variety of heterogeneous systems, ranging from mobile devices such as phones and tablets up to large-scale distributed systems of hundreds of machines and thousands of computational devices such as GPU cards. The system is flexible and can be used to express a wide variety of algorithms, including training and inference algorithms for deep neural network models, and it has been
+used for conducting research and for deploying machine learning systems into production across more than a dozen areas of computer science and other fields, including speech recognition, computer vision, robotics, information retrieval, natural language processing, geographic information extraction, and computational drug discovery. This paper describes the TensorFlow interface and an implementation of that interface that we have built at Google. The TensorFlow API and a reference implementation were released as an open-source package under the Apache 2.0 license in November, 2015 and are available at www.tensorflow.org. \nTL;DR:\n"
+```
+
+### Conversational Question And Answering 774M <a name="conversational-qa-774M"></a>
+
+```
+python finetune.py \
+--model=774M \
+--model_ckpt=models/774M/model.ckpt \
+--json_hparams=models/774M/hparams.json \
+--json_encoder=models/774M/encoder.json \
+--vocab_bpe=models/774M/vocab.bpe \
+--output_name=coqa_774M_5x2000.h5 \
+--dataset_path=/home/ubuntu/data/coqa \
+--data_loader=coqa \
+--base_lr=0.0001 \
+--num_epoch=5 \
+--decay_epochs="4,5" \
+--steps_per_epoch=2000
+
+python inference.py \
+--model_path=output/coqa_774M_5x2000.h5 \
+--json_hparams=models/774M/hparams.json \
+--json_encoder=models/774M/encoder.json \
+--vocab_bpe=models/774M/vocab.bpe \
+--nucleus \
+--top_p=1.0 \
+--temperature=1.0 \
+--output_length=200 \
+--starter="The 2008 Summer Olympics torch relay was run from March 24 until August 8, 2008, prior to the 2008 Summer Olympics, with the theme of \“one world, one dream\”. Plans for the relay were announced on April 26, 2007, in Beijing, China. The relay, also called by the organizers as the “Journey of Harmony”, lasted 129 days and carried the torch 137,000 km (85,000 mi) – the longest distance of any Olympic torch relay since the tradition was started ahead of the 1936 Summer Olympics. After being lit at the birthplace of the Olympic Games in Olympia, Greece on March 24, the torch traveled to the Panathinaiko Stadium in Athens, and then to Beijing, arriving on March 31. From Beijing, the torch was following a route passing through six continents. The torch has visited cities along the Silk Road, symbolizing ancient links between China and the rest of the world. The relay also included an ascent with the flame to the top of Mount Everest on the border of Nepal and Tibet, China from the Chinese side, which was closed specially for the event. \n Q: What was the theme? \n A: “one world, one dream”. \n Q: What was the length of the race? \n A: 137,000 km \n Q: Was it larger than previous ones? \n A: No \n Q: Where did the race begin? \n A: Olympia, Greece \n Q: Is there anything notable about that place? \n A: birthplace of Olympic Games \n Q: Where did they go after? \n A: Athens \n Q: How many days was the race? \n A: seven \n Q: Did they visit any notable landmarks? \n A: Panathinaiko Stadium \n Q: And did they climb any mountains? \n A:"
+```
