@@ -107,7 +107,7 @@ def main():
               steps_per_epoch=args.steps_per_epoch,
               callbacks=[LearningRateScheduler(net.create_schedule(args))])
 
-    model.save(os.path.join('output', args.output_name))
+    model.save(os.path.join('output', args.output_name), include_optimizer=False)
 
 if __name__ == '__main__':
     main()
