@@ -43,7 +43,7 @@ GPT2 is very GPU memory intensive. Here is the minimal requirements for models o
 python download_model.py model_size (choose from 124M, 355M, 774M and 1558M)
 ```
 
-### Data <a name="hardware"></a>
+### Data <a name="data"></a>
 
 __Text Generation__
 
@@ -102,7 +102,7 @@ Notice: This repo __does not__ implement the RL based fine-tuning algorithm as d
 
 ### Text Generation <a name="text-generation"></a>
 
-The first application is to fine-tune GPT2 to generate text of a particular "style." We have two examples here: the screenplay of `Kill Bill,` and the first five books of `A Song of Ice and Fire`. The training data is stored as a single `.txt` file. 
+The first application is to fine-tune GPT2 to generate text of a particular "style." We have two examples here: the screenplay of `Kill Bill,` and the first five books of `A Song of Ice and Fire`. Each training dataset is stored as a single `.txt` file. 
 
 For testing, we condition the text generation by the starter sentence `She picked up the sword` and see if the fine-tuned model can create any exciting output.
 
