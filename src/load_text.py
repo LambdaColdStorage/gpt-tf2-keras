@@ -108,6 +108,6 @@ def create_dataset(enc, length, dataset_path, batch_size, steps_per_epoch, num_e
         (tf.TensorShape([length]), tf.TensorShape([length - 1]))
         )
 
-    ds = ds.repeat(num_epoch).shuffle(buffer_size=steps_per_epoch).batch(batch_size, drop_remainder=True)
+    ds = ds.repeat(num_epoch).batch(batch_size, drop_remainder=True)
 
     return ds

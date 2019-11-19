@@ -94,22 +94,28 @@ def main():
     model.trainable = False    
 
     # prepare input data
-    input_data = [enc.encode(args.starter)] * args.batch_size    
+    input_data = [enc.encode(args.starter) for i in range(args.batch_size)]
     start_length = [len(data) for data in input_data]
-    flag_stop = [False] * args.batch_size
+    flag_stop = [False for i in range(args.batch_size)]
 
     # run inference
     for shift in range(args.output_length):
         output_data = model.predict(np.array(input_data))
+        
         for index in range(args.batch_size):
+
+
             if not flag_stop[index]:
                 probs = [(prob, i) for i, prob in enumerate(output_data[index, start_length[index] + shift - 1])]
                 probs.sort(reverse=True)
+                
                 if args.nucleus:
                     next_token = utils.find_top_p(probs, args.top_p, args.temperature)
                 else:
-                    next_token = utils.find_top_p(probs, args.top_k, args.temperature)
+                    next_token = utils.find_top_k(probs, args.top_k, args.temperature)
+
                 input_data[index].append(next_token)
+
                 if next_token == 50256:
                     flag_stop[index] = True
             else:
