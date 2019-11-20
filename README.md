@@ -665,7 +665,7 @@ python evaluate.py \
 --top_p=1.0 \
 --temperature=1.0 \
 --output_length=100 \
---batch_size=1
+--output_file=results/cnndm_124M_1x2000_test.output
 ```
 
 ### Conversational Question And Answering 124M <a name="conversational-qa-124M"></a>

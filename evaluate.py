@@ -53,6 +53,11 @@ parser.add_argument('--batch_size', type=int, help='batch size',
 parser.add_argument('--output_length', type=int, help='length of output sequence (number of tokens)',
                     default=100)
 
+parser.add_argument('--num_trials', type=int, help='number of trials for each testing sample',
+                    default=3)
+
+parser.add_argument('--output_file', type=str, help="path to output file")
+
 args = parser.parse_args()
 
 
@@ -78,12 +83,14 @@ def main():
         'test', enc, args.length, args.dataset_path, args.batch_size,
         output_length=args.output_length)
 
-    # for value in ds.take(10):
-    #     x = enc.decode(value[0].numpy())
+    # num_s = 0
+    # for value in ds:
+    #     x = enc.decode(np.asarray(value))
     #     print(x)
-    #     print(len(value[0]))
-    #     input("Press Enter to continue...")
-
+    #     print(len(value))
+    #     num_s += 1
+    #     if num_s > 50:
+    #         break
     # exit()
 
     # load model
@@ -113,48 +120,60 @@ def main():
 
     model.trainable = False    
 
-    num_sample = 3
+    cur_v = 0
+    max_v = 2
 
-    for value in ds.take(10):
-        input_data = [np.array(value[0]).tolist() for i in range(num_sample)]
-        start_length = [len(value[0]) for data in input_data]
-        flag_stop = [False for i in range(num_sample)]
+    with open(args.output_file, 'w') as f:
+        for value in ds:
+            input_data = [np.array(value).tolist() for i in range(args.num_trials)]
+            start_length = [len(value) for data in input_data]
+            flag_stop = [False for i in range(args.num_trials)]
+            idx_stop = [args.length for i in range(args.num_trials)]
 
+            for shift in range(args.output_length):
+                output_data = model.predict(np.array(input_data))
+                
+                for index in range(args.num_trials):
 
-        for shift in range(args.output_length):
-            output_data = model.predict(np.array(input_data))
-            
-            for index in range(num_sample):
+                    if not flag_stop[index]:
+                        probs = [(prob, i) for i, prob in enumerate(
+                            output_data[index, start_length[index] + shift - 1])]
+                        probs.sort(reverse=True)
+                        
+                        if args.nucleus:
+                            next_token = utils.find_top_p(probs, args.top_p, args.temperature)
+                        else:
+                            next_token = utils.find_top_k(probs, args.top_k, args.temperature)
 
-                if not flag_stop[index]:
-                    probs = [(prob, i) for i, prob in enumerate(output_data[index, start_length[index] + shift - 1])]
-                    probs.sort(reverse=True)
-                    
-                    if args.nucleus:
-                        next_token = utils.find_top_p(probs, args.top_p, args.temperature)
+                        input_data[index].append(next_token)
+
+                        if next_token == 50256:
+                            flag_stop[index] = True
+                            if idx_stop[index] == args.length:
+                                idx_stop[index] = len(input_data[index]) - 1
                     else:
-                        next_token = utils.find_top_k(probs, args.top_k, args.temperature)
+                        input_data[index].append(50256)
 
-                    input_data[index].append(next_token)
-
-                    if next_token == 50256:
-                        flag_stop[index] = True
+            # print result
+            line = ''
+            for index in range(args.num_trials):
+                output = enc.decode(input_data[index])
+                output_tldr = enc.decode(input_data[index][start_length[index]:idx_stop[index]])
+                output_tldr = output_tldr.replace('\n', ' ')
+                line += '<t> ' + output_tldr + ' </t>'
+                if index == args.num_trials - 1:
+                    line += '\n'
                 else:
-                    input_data[index].append(50256)
+                    line += ' '
+                print(output_tldr)
+                print('------------------------------------------------')
+            f.write(line)
+            f.flush()
 
-        # print result
-        for index in range(num_sample):
-            output = enc.decode(input_data[index])
-            print(output)
-            print('--------------------------------------------------')
-
-        print('===================================================================================')
-
-    #     output = model.predict(ds, steps=1)
-    #     for shift in range(args.output_length):
-            
-    #     # print(output)
-        
+            cur_v += 1
+            if cur_v == max_v:
+                break
+            print('==================================================================')
 
 if __name__ == '__main__':
     main()

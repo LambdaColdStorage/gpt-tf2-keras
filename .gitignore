@@ -1,5 +1,6 @@
 venv/*
 models/*
+results/*
 *.pyc
 *.h5
 *.sh
