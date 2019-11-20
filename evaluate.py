@@ -1,6 +1,6 @@
-import numpy as np
 import argparse
 import importlib
+import numpy as np
 
 
 import tensorflow as tf
@@ -10,15 +10,14 @@ from tensorflow import keras
 from src.layers import EmbeddingSim, EmbeddingRet, PositionEmbedding, LayerNormalization, _get_encoder_component, gelu, ScaledDotProductAttention, MultiHeadAttention, FeedForward
 from src import encoder
 from src import net
-from src import utils
-
+from src import evaluator
 
 parser = argparse.ArgumentParser(description='Input argument parser.')
 
 parser.add_argument('--model_path', type=str, help='path of model')
 
 parser.add_argument('--task', type=str, help='name of task',
-					choices=['cnndm', 'coqa'])
+                    choices=['cnndm', 'coqa'])
 
 parser.add_argument('--json_hparams', type=str, help='path to the json of hyper parameters')
 
@@ -53,7 +52,7 @@ parser.add_argument('--batch_size', type=int, help='batch size',
 parser.add_argument('--output_length', type=int, help='length of output sequence (number of tokens)',
                     default=100)
 
-parser.add_argument('--num_trials', type=int, help='number of trials for each testing sample',
+parser.add_argument('--num_trials', type=int, help='number of trials for each testing sample. Used for cnndm',
                     default=3)
 
 parser.add_argument('--output_file', type=str, help="path to output file")
@@ -118,63 +117,9 @@ def main():
         print('Unrecognized model format: ' + args.model_path.split('.')[-1])
         exit()
 
-    model.trainable = False    
+    model.trainable = False
 
-    cur_v = 0
-    max_v = 100000000
-
-    with open(args.output_file, 'w') as f:
-        for (value, num_samples) in ds:
-            print('Sample {0} out of {1}'.format(cur_v, num_samples))
-            input_data = [np.array(value).tolist() for i in range(args.num_trials)]
-            start_length = [len(value) for data in input_data]
-            flag_stop = [False for i in range(args.num_trials)]
-            idx_stop = [args.length for i in range(args.num_trials)]
-
-            for shift in range(args.output_length):
-                output_data = model.predict(np.array(input_data))
-                
-                for index in range(args.num_trials):
-
-                    if not flag_stop[index]:
-                        probs = [(prob, i) for i, prob in enumerate(
-                            output_data[index, start_length[index] + shift - 1])]
-                        probs.sort(reverse=True)
-                        
-                        if args.nucleus:
-                            next_token = utils.find_top_p(probs, args.top_p, args.temperature)
-                        else:
-                            next_token = utils.find_top_k(probs, args.top_k, args.temperature)
-
-                        input_data[index].append(next_token)
-
-                        if next_token == 50256:
-                            flag_stop[index] = True
-                            if idx_stop[index] == args.length:
-                                idx_stop[index] = len(input_data[index]) - 1
-                    else:
-                        input_data[index].append(50256)
-
-            # print result
-            line = ''
-            for index in range(args.num_trials):
-                output = enc.decode(input_data[index])
-                output_tldr = enc.decode(input_data[index][start_length[index]:idx_stop[index]])
-                output_tldr = output_tldr.replace('\n', ' ')
-                line += '<t> ' + output_tldr + ' </t>'
-                if index == args.num_trials - 1:
-                    line += '\n'
-                else:
-                    line += ' '
-                print(output_tldr)
-                print('------------------------------------------------')
-            f.write(line)
-            f.flush()
-
-            cur_v += 1
-            if cur_v == max_v:
-                break
-            print('==================================================================')
+    evaluator.eval(args, ds, model, enc)
 
 if __name__ == '__main__':
     main()

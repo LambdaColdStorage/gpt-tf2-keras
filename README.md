@@ -964,6 +964,7 @@ python evaluate.py \
 --json_hparams=models/124M/hparams.json \
 --json_encoder=models/124M/encoder.json \
 --vocab_bpe=models/124M/vocab.bpe \
+--task=cnndm \
 --dataset_path=/home/ubuntu/data/summarization \
 --data_loader=cnndm \
 --nucleus \
