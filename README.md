@@ -583,6 +583,7 @@ python inference.py \
 --output_length=200 \
 --batch_size=5 \
 --starter='She picked up the sword'
+
 ```
 
 ```
@@ -652,6 +653,19 @@ python inference.py \
 --output_length=200 \
 --batch_size=5 \
 --starter="TensorFlow [1] is an interface for expressing machine learning algorithms, and an implementation for executing such algorithms. A computation expressed using TensorFlow can be executed with little or no change on a wide variety of heterogeneous systems, ranging from mobile devices such as phones and tablets up to large-scale distributed systems of hundreds of machines and thousands of computational devices such as GPU cards. The system is flexible and can be used to express a wide variety of algorithms, including training and inference algorithms for deep neural network models, and it has been used for conducting research and for deploying machine learning systems into production across more than a dozen areas of computer science and other fields, including speech recognition, computer vision, robotics, information retrieval, natural language processing, geographic information extraction, and computational drug discovery. This paper describes the TensorFlow interface and an implementation of that interface that we have built at Google. The TensorFlow API and a reference implementation were released as an open-source package under the Apache 2.0 license in November, 2015 and are available at www.tensorflow.org. \nTL;DR:\n"
+
+python evaluate.py \
+--model_path=output/cnndm_124M_1x2000.h5 \
+--json_hparams=models/124M/hparams.json \
+--json_encoder=models/124M/encoder.json \
+--vocab_bpe=models/124M/vocab.bpe \
+--dataset_path=/home/ubuntu/data/summarization \
+--data_loader=cnndm \
+--nucleus \
+--top_p=1.0 \
+--temperature=1.0 \
+--output_length=100 \
+--batch_size=1
 ```
 
 ### Conversational Question And Answering 124M <a name="conversational-qa-124M"></a>

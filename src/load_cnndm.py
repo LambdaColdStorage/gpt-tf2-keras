@@ -83,30 +83,46 @@ class Sampler(object):
             raw_text = text[0].strip()
             enc_text = self.enc.encode(raw_text)
 
-            enc_seperator = self.enc.encode('\nTL;DR:\n')
+            if self.mode == 'train':
 
-            idx_highlight = random.randint(1, len(text) - 1)
-            enc_highlight = self.enc.encode(text[idx_highlight])
+                enc_seperator = self.enc.encode('\nTL;DR:\n')
 
-            # '<|endoftext|>'
-            enc_end = [50256]
+                idx_highlight = random.randint(1, len(text) - 1)
+                enc_highlight = self.enc.encode(text[idx_highlight])
 
-            enc_input = enc_text + enc_seperator + enc_highlight + enc_end
+                # '<|endoftext|>'
+                enc_end = [50256]
 
-            if len(enc_input) <= self.n_ctx:
-                yield enc_input, enc_input[1:]
+                enc_input = enc_text + enc_seperator + enc_highlight + enc_end
+
+                if len(enc_input) <= self.n_ctx:
+                    yield enc_input, enc_input[1:]
+            else:
+                max_length = 900
+
+                if len(enc_text) < max_length:
+                    yield enc_text
+                else:
+                    yield enc_text[:900]
 
 
-def create_dataset(enc, length, dataset_path, batch_size, steps_per_epoch, num_epoch):
+def create_dataset(mode, enc, length, dataset_path, batch_size, steps_per_epoch=None, num_epoch=None):
     
-    data_sampler = Sampler('train', dataset_path, enc, length)
+    data_sampler = Sampler(mode, dataset_path, enc, length)
 
-    ds = tf.data.Dataset.from_generator(
-        data_sampler.sample,
-        (tf.int32, tf.int32),
-        (tf.TensorShape([None]), tf.TensorShape([None]))
-        )
-
-    ds = ds.repeat(num_epoch).shuffle(buffer_size=steps_per_epoch).batch(batch_size, drop_remainder=True)
+    if mode == 'train':
+        ds = tf.data.Dataset.from_generator(
+            data_sampler.sample,
+            (tf.int32, tf.int32),
+            (tf.TensorShape([None]), tf.TensorShape([None]))
+            )
+        ds = ds.repeat(num_epoch).shuffle(buffer_size=steps_per_epoch).batch(batch_size, drop_remainder=True)
+    else:
+        ds = tf.data.Dataset.from_generator(
+            data_sampler.sample,
+            tf.int32,
+            tf.TensorShape([None])
+            )        
+        ds = ds.batch(batch_size, drop_remainder=True)
 
     return ds

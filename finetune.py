@@ -81,7 +81,7 @@ def main():
 
     ds = importlib.import_module(
         "src.load_" + args.data_loader).create_dataset(
-        enc, args.length, args.dataset_path, args.batch_size, args.steps_per_epoch, args.num_epoch)
+        'train', enc, args.length, args.dataset_path, args.batch_size, args.steps_per_epoch, args.num_epoch)
 
     # for value in ds.take(10):
     #     x = enc.decode(value[0][0].numpy())

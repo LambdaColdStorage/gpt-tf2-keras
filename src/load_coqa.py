@@ -48,9 +48,9 @@ class Sampler(object):
                 yield enc_story, enc_story[1:]
 
 
-def create_dataset(enc, length, dataset_path, batch_size, steps_per_epoch, num_epoch):
+def create_dataset(mode, enc, length, dataset_path, batch_size, steps_per_epoch, num_epoch):
     
-    data_sampler = Sampler('train', dataset_path, enc, length)
+    data_sampler = Sampler(mode, dataset_path, enc, length)
 
     ds = tf.data.Dataset.from_generator(
         data_sampler.sample,
