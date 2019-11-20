@@ -75,15 +75,16 @@ def main():
 
     ds = importlib.import_module(
         "src.load_" + args.data_loader).create_dataset(
-        'test', enc, args.length, args.dataset_path, args.batch_size)
+        'test', enc, args.length, args.dataset_path, args.batch_size,
+        output_length=args.output_length)
 
-    for value in ds.take(10):
-        x = enc.decode(value[0].numpy())
-        print(x)
-        print(len(value[0]))
-        input("Press Enter to continue...")
+    # for value in ds.take(10):
+    #     x = enc.decode(value[0].numpy())
+    #     print(x)
+    #     print(len(value[0]))
+    #     input("Press Enter to continue...")
 
-    exit()
+    # exit()
 
     # load model
     if args.model_path.split('.')[-1] == 'h5':

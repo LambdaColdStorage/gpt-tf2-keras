@@ -63,7 +63,7 @@ def cnndm_generator(mode='valid', enc=None, seed=0, shuffle=False, comm=None):
 
 
 class Sampler(object):
-    def __init__(self, mode, data_path, enc, n_ctx):
+    def __init__(self, mode, data_path, enc, n_ctx, output_length):
         self.mode = mode
         self.data_path = data_path
         self.enc = enc
@@ -71,6 +71,7 @@ class Sampler(object):
             self.urls = [line.strip() for line in f]
         self.num_samples = len(self.urls)
         self.n_ctx = n_ctx
+        self.output_length = output_length
 
     def sample(self,):
         for i, url in enumerate(self.urls):
@@ -98,17 +99,15 @@ class Sampler(object):
                 if len(enc_input) <= self.n_ctx:
                     yield enc_input, enc_input[1:]
             else:
-                max_length = 900
-
-                if len(enc_text) < max_length:
+                if len(enc_text) < self.n_ctx - self.output_length:
                     yield enc_text
                 else:
-                    yield enc_text[:900]
+                    yield enc_text[:self.n_ctx - self.output_length]
 
 
-def create_dataset(mode, enc, length, dataset_path, batch_size, steps_per_epoch=None, num_epoch=None):
+def create_dataset(mode, enc, length, dataset_path, batch_size, steps_per_epoch=None, num_epoch=None, output_length=None):
     
-    data_sampler = Sampler(mode, dataset_path, enc, length)
+    data_sampler = Sampler(mode, dataset_path, enc, length, output_length)
 
     if mode == 'train':
         ds = tf.data.Dataset.from_generator(

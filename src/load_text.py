@@ -94,7 +94,7 @@ class Sampler(object):
                 yield output, output[1:]
 
 
-def create_dataset(mode, enc, length, dataset_path, batch_size, steps_per_epoch, num_epoch):
+def create_dataset(mode, enc, length, dataset_path, batch_size, steps_per_epoch=None, num_epoch=None, output_length=None):
     
     combine = 50000
 

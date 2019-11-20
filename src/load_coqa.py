@@ -48,7 +48,7 @@ class Sampler(object):
                 yield enc_story, enc_story[1:]
 
 
-def create_dataset(mode, enc, length, dataset_path, batch_size, steps_per_epoch, num_epoch):
+def create_dataset(mode, enc, length, dataset_path, batch_size, steps_per_epoch=None, num_epoch=None, output_length=None):
     
     data_sampler = Sampler(mode, dataset_path, enc, length)
 
