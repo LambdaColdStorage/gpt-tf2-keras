@@ -113,8 +113,48 @@ def main():
 
     model.trainable = False    
 
-    output = model.predict(ds)
-    
+    num_sample = 3
+
+    for value in ds.take(10):
+        input_data = [np.array(value[0]).tolist() for i in range(num_sample)]
+        start_length = [len(value[0]) for data in input_data]
+        flag_stop = [False for i in range(num_sample)]
+
+
+        for shift in range(args.output_length):
+            output_data = model.predict(np.array(input_data))
+            
+            for index in range(num_sample):
+
+                if not flag_stop[index]:
+                    probs = [(prob, i) for i, prob in enumerate(output_data[index, start_length[index] + shift - 1])]
+                    probs.sort(reverse=True)
+                    
+                    if args.nucleus:
+                        next_token = utils.find_top_p(probs, args.top_p, args.temperature)
+                    else:
+                        next_token = utils.find_top_k(probs, args.top_k, args.temperature)
+
+                    input_data[index].append(next_token)
+
+                    if next_token == 50256:
+                        flag_stop[index] = True
+                else:
+                    input_data[index].append(50256)
+
+        # print result
+        for index in range(num_sample):
+            output = enc.decode(input_data[index])
+            print(output)
+            print('--------------------------------------------------')
+
+        print('===================================================================================')
+
+    #     output = model.predict(ds, steps=1)
+    #     for shift in range(args.output_length):
+            
+    #     # print(output)
+        
 
 if __name__ == '__main__':
     main()

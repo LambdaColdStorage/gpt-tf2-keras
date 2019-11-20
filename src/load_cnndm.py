@@ -99,6 +99,8 @@ class Sampler(object):
                 if len(enc_input) <= self.n_ctx:
                     yield enc_input, enc_input[1:]
             else:
+                enc_text = enc_text + self.enc.encode('\nTL;DR:\n')
+                
                 if len(enc_text) < self.n_ctx - self.output_length:
                     yield enc_text
                 else:
