@@ -121,10 +121,11 @@ def main():
     model.trainable = False    
 
     cur_v = 0
-    max_v = 2
+    max_v = 100000000
 
     with open(args.output_file, 'w') as f:
-        for value in ds:
+        for (value, num_samples) in ds:
+            print('Sample {0} out of {1}'.format(cur_v, num_samples))
             input_data = [np.array(value).tolist() for i in range(args.num_trials)]
             start_length = [len(value) for data in input_data]
             flag_stop = [False for i in range(args.num_trials)]

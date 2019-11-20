@@ -74,6 +74,7 @@ class Sampler(object):
         self.output_length = output_length
 
     def sample(self,):
+
         for i, url in enumerate(self.urls):
             path = os.path.join(self.data_path, get_path_of_url(url))
             text = open(path).read()
@@ -96,7 +97,7 @@ class Sampler(object):
 
                 if len(enc_text) > self.n_ctx - len(enc_output):
                     enc_text = enc_text[:self.n_ctx - len(enc_output)]
-                    
+
                 enc_input = enc_text + enc_output
                 yield enc_input, enc_input[1:]
 
@@ -106,7 +107,7 @@ class Sampler(object):
 
                 enc_input = enc_text + self.enc.encode('\nTL;DR:')
 
-                yield enc_input
+                yield enc_input, self.num_samples
 
 
 

@@ -23,7 +23,8 @@ TensorFlow 2 implementation of GTP2 for fine-tuning on a single GPU.
 	1. [Text Generation 774M](#text-generation-774M)
 	2. [Text Summarization 774M](#text-summarization-774M)
 	3. [Conversational Question and Answer 774M](#conversational-qa-774M)	
-
+7. [Evaluation](#evaluation)
+	1. [Text Summarization (CNNDM)](#evaluation-cnndm)
 
 ## Setup <a name="setup"></a>
 
@@ -110,6 +111,8 @@ This project would not be possible without the guidance and inspiration from the
 [minimaxir](https://github.com/minimaxir/gpt-2-simple): For examples of fine-tuning GPT2 models in TensorFlow 1.14.
 
 [CyberZHG](https://github.com/CyberZHG/keras-gpt-2): For examples of Keras implementation of GPT2 graph and restoring weights from checkpoints.
+
+[OpenNMT](http://opennmt.net/OpenNMT-py): For instructions of evaluating CNNDM results using Rouge Score.
 
 Notice: This repo __does not__ implement the RL based fine-tuning algorithm as described in [this blog](https://openai.com/blog/fine-tuning-gpt-2/). In contrast, we fine-tune the transformer layers using additional datasets for each new application.
 
@@ -653,19 +656,6 @@ python inference.py \
 --output_length=200 \
 --batch_size=5 \
 --starter="TensorFlow [1] is an interface for expressing machine learning algorithms, and an implementation for executing such algorithms. A computation expressed using TensorFlow can be executed with little or no change on a wide variety of heterogeneous systems, ranging from mobile devices such as phones and tablets up to large-scale distributed systems of hundreds of machines and thousands of computational devices such as GPU cards. The system is flexible and can be used to express a wide variety of algorithms, including training and inference algorithms for deep neural network models, and it has been used for conducting research and for deploying machine learning systems into production across more than a dozen areas of computer science and other fields, including speech recognition, computer vision, robotics, information retrieval, natural language processing, geographic information extraction, and computational drug discovery. This paper describes the TensorFlow interface and an implementation of that interface that we have built at Google. The TensorFlow API and a reference implementation were released as an open-source package under the Apache 2.0 license in November, 2015 and are available at www.tensorflow.org. \nTL;DR:\n"
-
-python evaluate.py \
---model_path=output/cnndm_124M_1x2000.h5 \
---json_hparams=models/124M/hparams.json \
---json_encoder=models/124M/encoder.json \
---vocab_bpe=models/124M/vocab.bpe \
---dataset_path=/home/ubuntu/data/summarization \
---data_loader=cnndm \
---nucleus \
---top_p=1.0 \
---temperature=1.0 \
---output_length=100 \
---output_file=results/cnndm_124M_1x2000_test.output
 ```
 
 ### Conversational Question And Answering 124M <a name="conversational-qa-124M"></a>
@@ -954,4 +944,68 @@ python inference.py \
 --output_length=200 \
 --batch_size=5 \
 --starter="The 2008 Summer Olympics torch relay was run from March 24 until August 8, 2008, prior to the 2008 Summer Olympics, with the theme of \“one world, one dream\”. Plans for the relay were announced on April 26, 2007, in Beijing, China. The relay, also called by the organizers as the “Journey of Harmony”, lasted 129 days and carried the torch 137,000 km (85,000 mi) – the longest distance of any Olympic torch relay since the tradition was started ahead of the 1936 Summer Olympics. After being lit at the birthplace of the Olympic Games in Olympia, Greece on March 24, the torch traveled to the Panathinaiko Stadium in Athens, and then to Beijing, arriving on March 31. From Beijing, the torch was following a route passing through six continents. The torch has visited cities along the Silk Road, symbolizing ancient links between China and the rest of the world. The relay also included an ascent with the flame to the top of Mount Everest on the border of Nepal and Tibet, China from the Chinese side, which was closed specially for the event. \n Q: What was the theme? \n A: “one world, one dream”. \n Q: What was the length of the race? \n A: 137,000 km \n Q: Was it larger than previous ones? \n A: No \n Q: Where did the race begin? \n A: Olympia, Greece \n Q: Is there anything notable about that place? \n A: birthplace of Olympic Games \n Q: Where did they go after? \n A: Athens \n Q: How many days was the race? \n A: seven \n Q: Did they visit any notable landmarks? \n A: Panathinaiko Stadium \n Q: And did they climb any mountains? \n A:"
+```
+
+## Evaluation <a name="evaluation"></a>
+
+
+### Text Summarization (CNNDM) <a name="evaluation-cnndm"></a>
+
+We follow the instructions in this [link](http://opennmt.net/OpenNMT-py/Summarization.html) to evaluate the models for text summization.
+
+__Step One__: Download the test split from this [link](https://github.com/harvardnlp/sent-summary).
+
+
+__Step Two__: Generate prediction output. For example, the command below generates the results for the fine-tuned 124M model.
+
+```
+python evaluate.py \
+--model_path=output/cnndm_124M_1x2000.h5 \
+--json_hparams=models/124M/hparams.json \
+--json_encoder=models/124M/encoder.json \
+--vocab_bpe=models/124M/vocab.bpe \
+--dataset_path=/home/ubuntu/data/summarization \
+--data_loader=cnndm \
+--nucleus \
+--top_p=1.0 \
+--temperature=1.0 \
+--output_length=100 \
+--output_file=results/cnndm_124M_1x2000_test.output
+```
+
+__Step Three__: Install ROUGE package and the evaluation script. We adopt the instructions on this [blog](https://poojithansl7.wordpress.com/2018/08/04/setting-up-rouge/) to work with this [repo](https://github.com/sebastianGehrmann/rouge-baselines.git).
+
+```
+sudo apt-get update
+sudo apt-get install perl
+sudo apt-get install synaptic
+# Use synaptic to install libxml-dom-perl
+
+git clone https://github.com/sebastianGehrmann/rouge-baselines.git --recursive
+cd rouge-baselines
+virtualenv -p /usr/bin/python3.6 venv
+. venv/bin/activate
+
+cd pyrouge
+python setup.py build
+python setup.py install
+
+pyrouge_set_rouge_path path_to/RELEASE-1.5.5
+
+cd RELEASE-1.5.5/data/WordNet-2.0-Exceptions
+./buildExeptionDB.pl . exc WordNet-2.0.exc.db
+cd ..
+ln -s WordNet-2.0-Exceptions/WordNet-2.0.exc.db WordNet-2.0.exc.db
+
+# Test
+cd ../../
+python -m pyrouge.test
+```
+
+__Step Four__: Run evaluation.
+
+```
+cd rouge-baselines
+. venv/bin/activate
+python baseline.py -s path_to/prediction_results.out -t path_to/test.txt.tgt.tagged -m sent_tag_verbatim -r
 ```
