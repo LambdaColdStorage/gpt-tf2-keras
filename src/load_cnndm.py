@@ -102,7 +102,7 @@ class Sampler(object):
                 yield enc_input, enc_input[1:]
 
             else:                
-                if len(enc_text) > self.n_ctx- self.output_length - len(enc_seperator):
+                if len(enc_text) > self.n_ctx - self.output_length - len(enc_seperator):
                     enc_text = enc_text[:self.n_ctx - self.output_length - len(enc_seperator)]
 
                 enc_input = enc_text + self.enc.encode('\nTL;DR:')

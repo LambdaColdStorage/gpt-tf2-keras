@@ -25,6 +25,7 @@ TensorFlow 2 implementation of GTP2 for fine-tuning on a single GPU.
 	3. [Conversational Question and Answer 774M](#conversational-qa-774M)	
 7. [Evaluation](#evaluation)
 	1. [Text Summarization (CNNDM)](#evaluation-cnndm)
+	2. [Conversational Question and Answer (COQA)](#evaluation-coqa)
 
 ## Setup <a name="setup"></a>
 
@@ -1009,4 +1010,37 @@ __Step Four__: Run evaluation.
 cd rouge-baselines
 . venv/bin/activate
 python baseline.py -s path_to/prediction_results.out -t path_to/test.txt.tgt.tagged -m sent_tag_verbatim -r
+```
+
+
+### Conversational Question and Answer (COQA) <a name="evaluation-coqa"></a>
+
+```
+python finetune.py \
+--model=124M \
+--model_ckpt=models/124M/model.ckpt \
+--json_hparams=models/124M/hparams.json \
+--json_encoder=models/124M/encoder.json \
+--vocab_bpe=models/124M/vocab.bpe \
+--output_name=coqa_124M_1x2000.h5 \
+--dataset_path=/home/ubuntu/data/coqa \
+--data_loader=coqa \
+--base_lr=0.0001 \
+--num_epoch=1 \
+--steps_per_epoch=2000
+
+
+python evaluate.py \
+--model_path=output/coqa_124M_1x2000.h5 \
+--json_hparams=models/124M/hparams.json \
+--json_encoder=models/124M/encoder.json \
+--vocab_bpe=models/124M/vocab.bpe \
+--task=coqa \
+--dataset_path=/home/ubuntu/data/coqa \
+--data_loader=coqa \
+--nucleus \
+--top_p=1.0 \
+--temperature=1.0 \
+--output_length=100 \
+--output_file=results/coqa_124M_1x2000.output
 ```

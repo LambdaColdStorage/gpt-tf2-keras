@@ -32,20 +32,20 @@ class Sampler(object):
             story = story.strip()
             enc_story = self.enc.encode(story)
 
+            enc_qa = []
             for q, a in zip(questions, answers):
-
                 enc_q = self.enc.encode(ftfy.fix_text(
-                    "\n Q: " + q['input_text']))
+                    "\nQ: " + q['input_text']))
                 enc_a = self.enc.encode(ftfy.fix_text(
-                    "\n A: " + a['input_text']))
+                    "\nA: " + a['input_text']))
+                enc_qa += enc_q + enc_a
 
-                if len(enc_story) + len(enc_q) + len(enc_a) <= self.n_ctx:
-                    enc_story = enc_story + enc_q + enc_a
-                else:
-                    break
 
-            if len(enc_story) < self.n_ctx:
-                yield enc_story, enc_story[1:]
+            if len(enc_story) > self.n_ctx - len(enc_qa):
+                enc_story = enc_story[:self.n_ctx - len(enc_qa)]
+
+            enc_story = enc_story + enc_qa
+            yield enc_story, enc_story[1:]
 
 
 def create_dataset(mode, enc, length, dataset_path, batch_size, steps_per_epoch=None, num_epoch=None, output_length=None):
