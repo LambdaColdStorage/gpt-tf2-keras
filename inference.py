@@ -11,6 +11,7 @@ from src import encoder
 from src import net
 from src import utils
 
+tf.compat.v1.disable_eager_execution()
 
 parser = argparse.ArgumentParser(description='Input argument parser.')
 
@@ -44,9 +45,10 @@ parser.add_argument('--starter', type=str, help='starter sentence')
 args = parser.parse_args()
 
 
+
 def main():
 
-    tf.compat.v1.disable_eager_execution()
+    
 
     if not args.json_encoder:
         print('json_encoder must be provided.')
@@ -99,6 +101,8 @@ def main():
     flag_stop = [False for i in range(args.batch_size)]
 
     # run inference
+    import time
+    start = time.time()
     for shift in range(args.output_length):
         output_data = model.predict(np.array(input_data))
         
@@ -120,7 +124,9 @@ def main():
                     flag_stop[index] = True
             else:
                 input_data[index].append(50256)
-
+    end = time.time()
+    print(end - start)
+    print('------------------------')
     # print result
     for index in range(args.batch_size):
         output = enc.decode(input_data[index])

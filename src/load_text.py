@@ -2,9 +2,11 @@ import glob
 import numpy as np
 import os
 import random
-import tensorflow as tf
 import tqdm
 import csv
+
+import tensorflow as tf
+# tf.compat.v1.disable_eager_execution()
 
 
 def load_dataset(enc, path, combine):

@@ -19,6 +19,7 @@ def eval_cnndm(args, ds, model, enc):
             for shift in range(args.output_length):
                 output_data = model.predict(np.array(input_data))
                 
+                print(output_data.shape)
                 for index in range(args.num_trials):
 
                     if not flag_stop[index]:

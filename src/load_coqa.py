@@ -7,7 +7,7 @@ import ftfy
 
 
 import tensorflow as tf
-
+# tf.compat.v1.disable_eager_execution()
 
 class Sampler(object):
     def __init__(self, mode, data_path, enc, n_ctx):

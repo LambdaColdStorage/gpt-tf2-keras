@@ -11,6 +11,7 @@ from tensorflow.keras.callbacks import LearningRateScheduler
 from src import encoder
 from src import net
 
+tf.compat.v1.disable_eager_execution()
 
 parser = argparse.ArgumentParser(description='Input argument parser.')
 
@@ -25,8 +26,6 @@ parser.add_argument('--json_hparams', type=str, help='path to the json of hyper 
 parser.add_argument('--json_encoder', type=str, help='path to the json of encoder')
 
 parser.add_argument('--vocab_bpe', type=str, help='path to the vocabulary bpe')
-
-parser.add_argument('--eager', help='flag to turn on/off eager mode', action='store_true')
 
 parser.add_argument('--dataset_path', type=str, help='path to dataset')
 
@@ -61,9 +60,6 @@ args = parser.parse_args()
 
 def main():
 
-    if not args.eager:
-        tf.compat.v1.disable_eager_execution()
-
     if not args.json_encoder:
         print('json_encoder must be provided.')
         print('quit program.')
@@ -85,6 +81,7 @@ def main():
         steps_per_epoch=args.steps_per_epoch,
         num_epoch=args.num_epoch)
 
+    # tf.compat.v1.disable_eager_execution()
     # for value in ds.take(10):
     #     x = enc.decode(value[0][0].numpy())
     #     print(x)

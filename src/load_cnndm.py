@@ -5,7 +5,7 @@ import re
 import ftfy
 
 import tensorflow as tf
-
+# tf.compat.v1.disable_eager_execution()
 
 def clean_up_start(text):
     if text[:2] == 'By':
@@ -123,11 +123,5 @@ def create_dataset(mode, enc, length, dataset_path, batch_size, steps_per_epoch=
             )
         ds = ds.repeat(num_epoch).shuffle(buffer_size=steps_per_epoch).batch(batch_size, drop_remainder=True)
     else:
-        # ds = tf.data.Dataset.from_generator(
-        #     data_sampler.sample,
-        #     tf.int32,
-        #     tf.TensorShape([None])
-        #     )        
-        # ds = ds.batch(batch_size, drop_remainder=True)
         ds = data_sampler.sample()
     return ds

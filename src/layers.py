@@ -4,7 +4,8 @@ import tensorflow as tf
 
 from tensorflow import keras
 from tensorflow.keras import backend as K
-from tensorflow.python.keras import engine
+
+# tf.compat.v1.disable_eager_execution()
 
 
 def attention_mask(nd, ns, dtype):
@@ -52,6 +53,7 @@ class EmbeddingRet(keras.layers.Embedding):
             None,
         ]
 
+    @tf.function
     def call(self, inputs):
         return [
             super(EmbeddingRet, self).call(inputs),
@@ -99,6 +101,7 @@ class EmbeddingSim(keras.layers.Layer):
         base_config = super(EmbeddingSim, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
 
+    # @tf.function
     def build(self, input_shape):
         if self.use_bias:
             embed_shape = input_shape[1]
@@ -122,6 +125,7 @@ class EmbeddingSim(keras.layers.Layer):
             return None
         return mask[0]
 
+    @tf.function
     def call(self, inputs, mask=None, **kwargs):
         inputs, embeddings = inputs
         if self.stop_gradient:
@@ -243,6 +247,7 @@ class PositionEmbedding(keras.layers.Layer):
             return input_shape[:-1] + (input_shape[-1] + self.output_dim,)
         return input_shape
 
+    @tf.function
     def call(self, inputs, **kwargs):
         if self.mode == self.MODE_EXPAND:
             if K.dtype(inputs) != 'int32':
@@ -330,7 +335,6 @@ class LayerNormalization(keras.layers.Layer):
         return input_mask
 
     def build(self, input_shape):
-        self.input_spec = engine.InputSpec(shape=input_shape)
         shape = input_shape[-1:]
         if self.scale:
             self.gamma = self.add_weight(
@@ -350,6 +354,7 @@ class LayerNormalization(keras.layers.Layer):
             )
         super(LayerNormalization, self).build(input_shape)
 
+    @tf.function
     def call(self, inputs, training=None):
         mean = K.mean(inputs, axis=-1, keepdims=True)
         variance = K.mean(K.square(inputs - mean), axis=-1, keepdims=True)
@@ -411,6 +416,7 @@ class ScaledDotProductAttention(keras.layers.Layer):
             return [mask, None]
         return mask
 
+    @tf.function
     def call(self, inputs, mask=None, **kwargs):
         if isinstance(inputs, list):
             query, key, value = inputs
@@ -606,6 +612,7 @@ class MultiHeadAttention(keras.layers.Layer):
         mask = K.tile(mask, [1, head_num, 1, 1])
         return K.reshape(mask, (-1, seq_len))
 
+    @tf.function
     def call(self, inputs, mask=None):
         if isinstance(inputs, list):
             q, k, v = inputs
@@ -791,6 +798,7 @@ class FeedForward(keras.layers.Layer):
             )
         super(FeedForward, self).build(input_shape)
 
+    @tf.function
     def call(self, x, mask=None, training=None):
         h = K.dot(x, self.W1)
         if self.use_bias:

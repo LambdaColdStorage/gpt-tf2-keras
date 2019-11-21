@@ -4,11 +4,12 @@ import tensorflow as tf
 from tensorflow import keras
 from src.layers import EmbeddingSim, EmbeddingRet, PositionEmbedding, LayerNormalization, _get_encoder_component, gelu
 
+# tf.compat.v1.disable_eager_execution()
+
 
 def loss(labels, logits):
   return tf.keras.losses.sparse_categorical_crossentropy(
     labels, logits[:, :-1, :], from_logits=True)
-
 
 def create_model(args):
 
@@ -69,8 +70,6 @@ def create_model(args):
 
 
     model = keras.models.Model(inputs=input_layer, outputs=output_layer)
-
-
 
     return model
 
