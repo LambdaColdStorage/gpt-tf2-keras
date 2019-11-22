@@ -45,10 +45,35 @@ parser.add_argument('--starter', type=str, help='starter sentence')
 args = parser.parse_args()
 
 
+# @tf.function
+def sample(model, input_data, start_length, flag_stop,
+           output_length, batch_size, nucleus, top_p, top_k,
+           temperature):
+
+    for shift in range(output_length):
+        output_data = model.predict(np.array(input_data))
+
+        for index in range(batch_size):
+
+            if not flag_stop[index]:
+                probs = [(prob, i) for i, prob in enumerate(output_data[index, start_length[index] + shift - 1])]
+                probs.sort(reverse=True)
+                
+                if nucleus:
+                    next_token = utils.find_top_p(probs, top_p, temperature)
+                else:
+                    next_token = utils.find_top_k(probs, top_k, temperature)
+
+                input_data[index].append(next_token)
+
+                if next_token == 50256:
+                    flag_stop[index] = True
+            else:
+                input_data[index].append(50256)
+    return input_data
+
 
 def main():
-
-    
 
     if not args.json_encoder:
         print('json_encoder must be provided.')
@@ -101,35 +126,21 @@ def main():
     flag_stop = [False for i in range(args.batch_size)]
 
     # run inference
+
+    print('Start generation: ... ')
     import time
     start = time.time()
-    for shift in range(args.output_length):
-        output_data = model.predict(np.array(input_data))
-        
-        for index in range(args.batch_size):
 
+    output = sample(model, input_data, start_length, flag_stop,
+                    args.output_length, args.batch_size, args.nucleus,
+                    args.top_p, args.top_k, args.temperature)
 
-            if not flag_stop[index]:
-                probs = [(prob, i) for i, prob in enumerate(output_data[index, start_length[index] + shift - 1])]
-                probs.sort(reverse=True)
-                
-                if args.nucleus:
-                    next_token = utils.find_top_p(probs, args.top_p, args.temperature)
-                else:
-                    next_token = utils.find_top_k(probs, args.top_k, args.temperature)
-
-                input_data[index].append(next_token)
-
-                if next_token == 50256:
-                    flag_stop[index] = True
-            else:
-                input_data[index].append(50256)
     end = time.time()
     print(end - start)
     print('------------------------')
     # print result
     for index in range(args.batch_size):
-        output = enc.decode(input_data[index])
+        output = enc.decode(output[index])
         print(output)
         print('--------------------------------------------------')
 
